@@ -170,6 +170,7 @@ export class InnerSlider extends React.Component {
     //   this.props.onLazyLoad([leftMostSlide])
     // }
     this.adaptHeight();
+    this.offsetLazyLoad();
     let spec = {
       listRef: this.list,
       trackRef: this.track,
@@ -304,7 +305,8 @@ export class InnerSlider extends React.Component {
   };
   checkImagesLoad = () => {
     let images =
-      (this.list && this.list.querySelectorAll &&
+      (this.list &&
+        this.list.querySelectorAll &&
         this.list.querySelectorAll(".slick-slide img")) ||
       [];
     let imagesCount = images.length,
@@ -338,6 +340,35 @@ export class InnerSlider extends React.Component {
         }
       }
     });
+  };
+  offsetLazyLoad = () => {
+    const lazyLoadOffset = this.props.lazyLoadOffset;
+    let slidesToLoad = [];
+    for (
+      let index = this.state.currentSlide - 1;
+      index >= this.state.currentSlide - lazyLoadOffset;
+      index--
+    ) {
+      slidesToLoad.push(index);
+    }
+
+    for (
+      let index = this.state.currentSlide + 1;
+      index <= this.state.currentSlide + lazyLoadOffset;
+      index++
+    ) {
+      slidesToLoad.push(index);
+    }
+
+    slidesToLoad = slidesToLoad.filter(
+      index => index >= 0 && !this.state.lazyLoadedList.includes(index)
+    );
+
+    if (slidesToLoad.length > 0) {
+      this.setState(state => ({
+        lazyLoadedList: state.lazyLoadedList.concat(slidesToLoad)
+      }));
+    }
   };
   progressiveLazyLoad = () => {
     let slidesToLoad = [];
